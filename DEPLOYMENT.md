@@ -56,5 +56,16 @@ current workflow. The deployment role cannot restore backups itself. Retained ha
 allow an entry-point rollback, but changes to unhashed public images must use new filenames
 or a versioned directory so older releases keep working.
 
-Frontend API configuration and the 2025 backend are unchanged. API availability and
-commerce/admin behavior need separate verification before changes to those features.
+Backend-dependent source and API configuration are retained in `src/legacy/`, but search,
+commerce, and admin routes/navigation are inactive in the public archive. Restore and verify
+the API before reconnecting them.
+
+## Archive cleanup release
+
+Commit `caf6de0` was deployed successfully through GitHub Actions run
+[36044062325](https://github.com/jayyeong/SOMA-2025-FE/actions/runs/36044062325).
+Content preservation, build verification, deployment guard tests, and public HTML comparison passed.
+The preceding entry point is backed up under `releases/2025/36044062325-1/index.html`.
+Local browser checks covered desktop/mobile navigation, portfolios, lookbook page turns,
+runway lightbox, behind gallery, and the inactive search route. Production navigation was
+verified after deployment. Image and video encoding were unchanged.
