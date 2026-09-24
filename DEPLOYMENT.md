@@ -18,6 +18,11 @@ Multipart source ETags may change during server-side copy and are not treated as
 
 ## CI and publishing
 
+Initial validation [run 36041363313](https://github.com/jayyeong/SOMA-2025-FE/actions/runs/36041363313)
+passed on commit `35b0eed524025f16008c38af0e3acf4150373f22`: dependency installation,
+five deployment guard tests, production build, artifact verification, AWS OIDC authentication,
+and the non-mutating deployment dry run. Production publishing was intentionally skipped.
+
 Pushes to `master` and `dev/**`, and pull requests, build and verify without publishing.
 Actions → **Archive 2025** → **Run workflow** on `master`:
 
