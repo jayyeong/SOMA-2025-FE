@@ -1,53 +1,58 @@
-name: Deploy to S3
-
+name: Archive 2025
 on:
   push:
-    branches:
-      - master
-
+    branches: [master, 'dev/**']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: Publish this master build to kuadarchive.com/2025/
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: archive-2025-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: python3 scripts/test-deploy.py
+      - run: npm run build
+      - run: python3 scripts/verify-build.py
+      - name: Require connection for requested deployment
+        if: github.event_name == 'workflow_dispatch' && inputs.deploy
         env:
-          NODE_ENV: production
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+          ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+        run: |
+          test "$GITHUB_REF" = refs/heads/master
+          test -n "$ROLE_ARN"
+      - name: AWS connection (master only)
+        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && vars.AWS_ROLE_ARN != ''
+        uses: aws-actions/configure-aws-credentials@ff717079ee2060e4bcee96c4779b553acc87447c # v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          role-session-name: archive-2025-${{ github.run_id }}
           aws-region: ap-northeast-2
-
-      - name: Upload to S3
-        run: |
-          echo "Syncing build files to S3..."
-          aws s3 sync build/ s3://kuad-archive/2025/ \
-            --delete \
-            --cache-control "max-age=31536000"
-
-      - name: Invalidate CloudFront
-        run: |
-          echo "Creating CloudFront invalidation..."
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-            --paths "/2025/*"
-
-      - name: Deployment Status
-        run: |
-          echo "Deployment completed successfully!"
+          allowed-account-ids: '696592521871'
+      - name: Validate deployment without publishing
+        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && vars.AWS_ROLE_ARN != ''
+        run: bash scripts/deploy.sh --dry-run
+      - name: Deploy 2025
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' && inputs.deploy
+        env:
+          RELEASE_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+        run: bash scripts/deploy.sh --deploy

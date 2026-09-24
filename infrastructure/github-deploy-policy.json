@@ -1,0 +1,49 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "List2025Only",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::kuadarchive",
+      "Condition": {
+        "StringLike": {
+          "s3:prefix": [
+            "2025/",
+            "2025/*"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "Upload2025Only",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:AbortMultipartUpload"
+      ],
+      "Resource": "arn:aws:s3:::kuadarchive/2025/*"
+    },
+    {
+      "Sid": "ReadCurrentEntry",
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::kuadarchive/2025/index.html"
+    },
+    {
+      "Sid": "BackupEntry",
+      "Effect": "Allow",
+      "Action": "s3:PutObject",
+      "Resource": "arn:aws:s3:::kuadarchive-backup-696592521871/releases/2025/*/index.html"
+    },
+    {
+      "Sid": "RefreshArchiveDistribution",
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:CreateInvalidation",
+        "cloudfront:GetInvalidation"
+      ],
+      "Resource": "arn:aws:cloudfront::696592521871:distribution/ESQ6WE0AL18SD"
+    }
+  ]
+}
