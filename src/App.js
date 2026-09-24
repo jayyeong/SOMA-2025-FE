@@ -1,90 +1,50 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Header from "./components/Header";
-import SearchPage from "./pages/SearchPage";
-import StorePage from "./pages/StorePage";
-import StoreDetailPage from "./pages/StoreDetailPage";
-import CartPage from "./pages/CartPage";
-import CheckoutPage from "./pages/CheckoutPage";
-import OrderCompletePage from "./pages/OrderCompletePage";
-import AdminLogin from './pages/AdminLogin';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminReceiptDetail from './pages/AdminReceiptDetail';
+import { lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import Header from './components/layout/Header';
+import ScrollToTop from './components/layout/ScrollToTop';
 import Home from './pages/Home';
-import PortfolioPage from './pages/PortfolioPage';
-import MainTheme from './pages/MainTheme';
-import TeamPage from './pages/TeamPage';
-import ScrollToTop from './components/ScrollToTop';
-import ShowInfo from "./pages/ShowInfo";
-import LookBook from "./pages/LookBook";
-// import ComingSoon from "./pages/ComingSoon";
-import ArchivePage from "./pages/ArchivePage";
-import BehindShow from "./pages/BehindShow";
-import BehindBrochure from "./pages/BehindBrochure";
-import BehindMaking from "./pages/BehindMaking";
-import Runway from "./pages/Runway";
 
-function App() {
+const MainTheme = lazy(() => import('./pages/project/MainTheme'));
+const TeamPage = lazy(() => import('./pages/project/TeamPage'));
+const PortfolioPage = lazy(() => import('./pages/project/PortfolioPage'));
+const LookBook = lazy(() => import('./pages/project/LookBook'));
+const Runway = lazy(() => import('./pages/project/Runway'));
+const ShowInfo = lazy(() => import('./pages/info/ShowInfo'));
+const ArchivePage = lazy(() => import('./pages/info/ArchivePage'));
+const BehindShow = lazy(() => import('./pages/behind/BehindShow'));
+const BehindBrochure = lazy(() => import('./pages/behind/BehindBrochure'));
+const BehindMaking = lazy(() => import('./pages/behind/BehindMaking'));
+
+export default function App() {
   return (
     <BrowserRouter basename="/2025">
       <ScrollToTop />
-      <div className="min-h-screen-dvh bg-white">
-        <Header />
+      <Header />
+      <Suspense fallback={<p role="status" className="py-20 text-center">불러오는 중…</p>}>
         <Routes>
           <Route path="/" element={<Home />} />
-          {/* PROJECT 카테고리 경로 */}
-          {/* 메인 테마 */}
+          <Route path="/project" element={<Navigate to="/project/main-theme" replace />} />
           <Route path="/project/main-theme" element={<MainTheme />} />
-          <Route path="/project/" element={<Navigate to="/project/main-theme" />} />
-          {/* 팀 페이지 */}
           <Route path="/team/:teamId" element={<TeamPage />} />
-          {/* 룩북 */}
-          <Route path="/project/look-book" element={<LookBook />} />
-          {/* 런웨이 */}
-          <Route path="/project/runway" element={<Runway />} />
-          {/* 기존 경로 */}
-          <Route path="/search" element={<SearchPage />} />
           <Route path="/portfolio/:portfolioUrl" element={<PortfolioPage />} />
-
-          {/* 스토어 관련 경로 - teamName 대신 teamId 사용 */}
-          <Route path="/store" element={<Navigate to="/store/all" />} />
-          <Route path="/store/all" element={<StorePage />} />
-          <Route path="/store/team/:teamId" element={<StorePage />} />
-          <Route path="/store/item/:itemId" element={<StoreDetailPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/order-complete/:receiptId" element={<OrderCompletePage />} />
-          <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/receipt/:id" element={<AdminReceiptDetail />} />
-          {/* 쇼 인포 */}
+          <Route path="/project/look-book" element={<LookBook />} />
+          <Route path="/project/runway" element={<Runway />} />
+          <Route path="/show-info" element={<Navigate to="/show-info/exhibition" replace />} />
+          <Route path="/show info" element={<Navigate to="/show-info/exhibition" replace />} />
           <Route path="/show-info/:section" element={<ShowInfo />} />
-          <Route path="/show info/" element={<Navigate to="/show-info/exhibition" />} />
-
-          {/* 비하인드 */}
-          <Route path="/behind/" element={<Navigate to="/behind/show" />} />
+          <Route path="/behind" element={<Navigate to="/behind/show" replace />} />
           <Route path="/behind/show" element={<BehindShow />} />
           <Route path="/behind/brochure" element={<BehindBrochure />} />
           <Route path="/behind/making" element={<BehindMaking />} />
-          
-          {/* archive */}
           <Route path="/archive" element={<ArchivePage />} />
-
-          {/* 404 페이지 */}
           <Route path="*" element={
-            <div className="flex flex-col items-center justify-center h-screen">
-              <div className="mt-20 text-center">
-                <h1 className="text-3xl font-bold mb-4">페이지를 찾을 수 없습니다</h1>
-                <p className="mb-8">요청하신 페이지가 존재하지 않습니다.</p>
-                <a href="/2025/" className="bg-black text-white px-4 py-2 hover:bg-gray-800 transition">
-                  홈으로 돌아가기
-                </a>
-              </div>
-            </div>
+            <main className="px-4 py-20 text-center">
+              <h1 className="text-2xl font-bold mb-4">페이지를 찾을 수 없습니다</h1>
+              <Link to="/" className="underline">홈으로 돌아가기</Link>
+            </main>
           } />
         </Routes>
-      </div>
+      </Suspense>
     </BrowserRouter>
   );
 }
-
-export default App;

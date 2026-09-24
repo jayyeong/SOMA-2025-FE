@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 const videoList = [
     {
@@ -44,49 +44,10 @@ const Home = () => {
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [progress, setProgress] = useState(0);
-    const videoRef = useRef(null);
-    // const [setDisableTransition] = useState(false);
-    const [progressBarKey, setProgressBarKey] = useState(0);
-    const [disableTransition, setDisableTransition] = useState(false);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const video = videoRef.current;
-        if (!video) return;
-
-        const handleTimeUpdate = () => {
-            if (!video.duration) return;
-            const percent = (video.currentTime / video.duration) * 100;
-
-            // 줄어드는 순간이면 transition 끈다
-            if (percent < progress) {
-                setDisableTransition(true);
-                setTimeout(() => setDisableTransition(false), 50);
-            }
-
-            setProgress(percent);
-        };
-
-        const resetProgress = () => setProgress(0);
-
-        video.addEventListener('loadedmetadata', resetProgress);
-        video.addEventListener('timeupdate', handleTimeUpdate);
-
-        return () => {
-            video.removeEventListener('loadedmetadata', resetProgress);
-            video.removeEventListener('timeupdate', handleTimeUpdate);
-        };
-    }, [currentIndex, progress, setDisableTransition]);
-
-    const goToVideo = (index) => { // 진행 바 초기화 함수
-        setDisableTransition(true);           // transition 끄기
+    const goToVideo = (index) => {
         setProgress(0);
-        setProgressBarKey(prev => prev + 1);
         setCurrentIndex(index);
-
-        setTimeout(() => {
-            setDisableTransition(false);
-        }, 50);
     };
 
     const handlePrev = () => {
@@ -110,17 +71,16 @@ const Home = () => {
             > {/* 헤더 푸터 길이만큼 빼 */}
 
                 <video
-                    ref={videoRef}
                     key={currentIndex} // 인덱스 변경 시마다 새로 로드
                     src={`${process.env.PUBLIC_URL}${videoList[currentIndex].src}`}
                     autoPlay
                     muted
                     loop={false}
                     playsInline
-                    onEnded={() => {
-                        setCurrentIndex(prev => (prev + 1) % videoList.length);
-                        setProgress(0);
-                        setProgressBarKey(prev => prev + 1); // 진행바 리셋하려고 key 변경
+                    onEnded={handleNext}
+                    onTimeUpdate={({ currentTarget: video }) => {
+                        setProgress(Number.isFinite(video.duration) && video.duration > 0
+                            ? video.currentTime / video.duration * 100 : 0);
                     }}
                     onClick={() => {
                         const title = videoList[currentIndex].title;
@@ -136,11 +96,7 @@ const Home = () => {
                 {/* 진행 바 */}
                 <div className="absolute bottom-0 left-0 w-full h-1 bg-white/20">
                     <div
-                        key={progressBarKey}
-                        className={`
-                        h-full bg-black
-                        ${disableTransition ? '' : 'transition-[width] duration-[1000ms] ease-linear'}
-                        `}
+                        className="h-full bg-black"
                         style={{ width: `${progress}%` }}
                     />
                 </div>
@@ -148,13 +104,13 @@ const Home = () => {
                 {/* 좌우 버튼 */}
                 <div className="hidden lg:flex">
                     <button
-                        onClick={handlePrev}
+                        aria-label="이전 영상" onClick={handlePrev}
                         className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-4xl z-10"
                     >
                         &#10094;
                     </button>
                     <button
-                        onClick={handleNext}
+                        aria-label="다음 영상" onClick={handleNext}
                         className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-4xl z-10"
                     >
                         &#10095;
@@ -167,11 +123,7 @@ const Home = () => {
                 {videoList.map((video, index) => (
                     <button
                         key={index}
-                        onClick={() => {
-                            setCurrentIndex(index);
-                            setProgress(0);
-                            setProgressBarKey(prev => prev + 1);
-                        }}
+                        onClick={() => goToVideo(index)}
                         className={`
               py-4 px-6 text-lg font-medium relative transition-colors
               ${index === currentIndex ? 'text-black' : 'text-gray-400'}
@@ -189,7 +141,7 @@ const Home = () => {
             {/* 하단 메뉴 패널(모바일) */}
             <div className="lg:hidden absolute bottom-0 left-0 w-full bg-white flex items-center justify-between px-4 py-3 z-20">
                 <button
-                    onClick={handlePrev}
+                    aria-label="이전 영상" onClick={handlePrev}
                     className="w-9 h-9 flex items-center justify-center border border-gray-300 rounded-full text-xl"
                 >
                     &#10094;
@@ -200,7 +152,7 @@ const Home = () => {
                 </div>
 
                 <button
-                    onClick={handleNext}
+                    aria-label="다음 영상" onClick={handleNext}
                     className="w-9 h-9 flex items-center justify-center border border-gray-300 rounded-full text-xl"
                 >
                     &#10095;

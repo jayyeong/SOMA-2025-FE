@@ -1,70 +1,67 @@
-# Getting Started with Create React App
+# KUAD 2025 — SOMA archive
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React exhibition archive at https://kuadarchive.com/2025/.
 
-## Available Scripts
+## Local work
 
-In the project directory, you can run:
+```sh
+npm ci
+npm start
+```
 
-### `npm start`
+Production preview:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```sh
+npm run build
+python3 scripts/verify-build.py
+python3 scripts/preview.py
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Open http://localhost:4175/2025/.
 
-### `npm test`
+## Structure
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- `src/pages/Home.jsx`: home video selector.
+- `src/pages/project/`: main theme, teams, portfolios, lookbook, runway.
+- `src/pages/behind/`: show, brochure, and making galleries.
+- `src/pages/info/`: exhibition information and previous archives.
+- `src/components/layout/`: navigation and route scroll handling.
+- `src/components/media/`: shared image gallery, video gallery, and lightbox.
+- `src/data/`: exhibition content, navigation, gallery sequences, and explicit image imports.
+- `src/assets/`: active member images grouped by team/type, plus fonts.
+- `src/styles/`: global typography and Tailwind styles.
+- `public/`: directly served media grouped by content type; existing public URLs are retained.
+- `src/legacy/`: retained search, store, cart, checkout, and admin code and assets. These are disconnected from the archive router and excluded from production bundles and Tailwind scanning.
+- `scripts/`: content preservation, build validation, deployment guards, and local preview.
+- `infrastructure/`: scoped AWS role trust and permission documents.
 
-### `npm run build`
+The archive itself uses local exhibition data and does not depend on the unavailable API.
+Backend code, axios, environment configuration, and store images remain available for restoration.
+`src/legacy/AppWithBackend.js` and `HeaderWithBackend.js` retain the previous routes/navigation.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Content and validation
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+All 52 member records, their 260 images, six team descriptions, 252 displayed lookbook pages,
+and the original gallery sequences are preserved. `scripts/content-baseline.json` protects
+content hashes and gallery order. Update it deliberately when exhibition content changes.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+After changing member image paths, run `node scripts/sync-member-images.cjs`.
+Explicit imports avoid webpack scanning and bundling every source file.
 
-### `npm run eject`
+```sh
+python3 scripts/check-content.py
+node scripts/sync-member-images.cjs --check
+python3 scripts/test-deploy.py
+CI=true npm run build
+python3 scripts/verify-build.py
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Secondary pages load only when visited. Shared galleries avoid component remounts caused by
+nested component definitions. Home video progress uses React media events without repeatedly
+registering event handlers or scheduling transition timers.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Removed template files, duplicate fonts, and unused public images remain recoverable in Git.
+`scripts/cleanup-report.json` distinguishes removed files from retained legacy images.
+No image quality or video encoding was changed in this code cleanup.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+See [DEPLOYMENT.md](DEPLOYMENT.md) for CI/CD, backup verification, and rollback instructions.

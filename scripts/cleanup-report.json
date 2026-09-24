@@ -1,0 +1,94 @@
+{
+  "archivedAssets": [
+    {
+      "path": "src/assets/profile.jpg",
+      "bytes": 2612
+    },
+    {
+      "path": "src/assets/profile 2.jpg",
+      "bytes": 2612
+    },
+    {
+      "path": "src/assets/store/keyring_detail.jpg",
+      "bytes": 166213
+    },
+    {
+      "path": "src/assets/store/bag_detail.jpg",
+      "bytes": 200398
+    },
+    {
+      "path": "src/assets/store/flower_detail.jpg",
+      "bytes": 751518
+    },
+    {
+      "path": "src/assets/store/flower-B.jpg",
+      "bytes": 147650
+    },
+    {
+      "path": "src/assets/store/perfume.webp",
+      "bytes": 303398
+    },
+    {
+      "path": "src/assets/store/sticker.webp",
+      "bytes": 2071096
+    },
+    {
+      "path": "src/assets/store/flower-A.jpg",
+      "bytes": 157993
+    },
+    {
+      "path": "src/assets/store/soma_ruler.webp",
+      "bytes": 68440
+    },
+    {
+      "path": "src/assets/store/perfume_detail.jpg",
+      "bytes": 61519
+    },
+    {
+      "path": "src/assets/store/bag1.webp",
+      "bytes": 7588958
+    },
+    {
+      "path": "src/assets/store/postcard.webp",
+      "bytes": 194746
+    },
+    {
+      "path": "src/assets/store/bag2.webp",
+      "bytes": 12805710
+    },
+    {
+      "path": "src/assets/store/postcard_detail.jpg",
+      "bytes": 291921
+    },
+    {
+      "path": "src/assets/store/ruler_deatail.jpg",
+      "bytes": 57273
+    },
+    {
+      "path": "src/assets/store/shirts.webp",
+      "bytes": 6296756
+    },
+    {
+      "path": "src/assets/store/bag3.webp",
+      "bytes": 6157834
+    },
+    {
+      "path": "src/assets/store/keyring.webp",
+      "bytes": 898032
+    }
+  ],
+  "removedPublicAssets": [
+    {
+      "path": "public/lookbook/SOMA2025252.jpg",
+      "bytes": 133420
+    },
+    {
+      "path": "public/image/전시안내.jpg",
+      "bytes": 596909
+    },
+    {
+      "path": "public/image/전시안내_모바일_2.jpg",
+      "bytes": 223268
+    }
+  ]
+}

@@ -22,3 +22,7 @@ for source in (root / 'public').rglob('*'):
         target = build / source.relative_to(root / 'public')
         assert target.is_file() and target.stat().st_size == source.stat().st_size, f'Missing public asset: {source}'
 print(f'Validated {len(manifest["files"])} bundled assets and public files under /2025/.')
+for source_map in (build / 'static/js').glob('*.map'):
+    sources = json.loads(source_map.read_text())['sources']
+    assert not any('legacy/' in source and 'node_modules' not in source for source in sources), 'Inactive backend code bundled'
+print('Inactive backend source is excluded from the production JavaScript.')
