@@ -5,6 +5,7 @@ import ScrollToTop from './components/layout/ScrollToTop';
 import Home from './pages/Home';
 
 const MainTheme = lazy(() => import('./pages/project/MainTheme'));
+const Teams = lazy(() => import('./pages/project/Teams'));
 const TeamPage = lazy(() => import('./pages/project/TeamPage'));
 const PortfolioPage = lazy(() => import('./pages/project/PortfolioPage'));
 const LookBook = lazy(() => import('./pages/project/LookBook'));
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/project" element={<Navigate to="/project/main-theme" replace />} />
           <Route path="/project/main-theme" element={<MainTheme />} />
+          <Route path="/teams" element={<Teams />} />
           <Route path="/team/:teamId" element={<TeamPage />} />
           <Route path="/portfolio/:portfolioUrl" element={<PortfolioPage />} />
           <Route path="/project/look-book" element={<LookBook />} />

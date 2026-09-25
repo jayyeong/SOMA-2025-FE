@@ -13,6 +13,20 @@ export const navigation = [
       ]
     },
     {
+      title: 'TEAMS',
+      path: '/teams',
+      description: 'SOMA를 구성하는 여섯 팀의 주제와 디자이너들의 작품을 만나보세요.',
+      subItems: [
+        { name: 'ALL TEAMS', path: '/teams' },
+        { name: 'AGIOTITA', path: '/team/agiotita' },
+        { name: 'BIPOLAR', path: '/team/bipolar' },
+        { name: '" - - - "', path: '/team/dash' },
+        { name: 'Dialysis', path: '/team/dialysis' },
+        { name: '표류[ ]기', path: '/team/drift' },
+        { name: '자각몽', path: '/team/lucid-dream' },
+      ]
+    },
+    {
       title: 'SHOW INFO',
       path: '/show-info/exhibition',
       description: `SHOW INFO 카테고리는 졸업전시회의 전반적인 정보를 제공하는 공간입니다.
