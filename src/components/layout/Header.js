@@ -98,7 +98,7 @@ export default function Header() {
         <button ref={menuButton} onClick={() => setMobileOpen(true)} aria-label="메뉴 열기" aria-expanded={mobileOpen}><Menu size={24} /></button>
       </header>
       {mobileOpen && <>
-        <div className="fixed inset-0 bg-black/30 z-50" onClick={closeMobile} />
+        <div className="mobile-menu-backdrop fixed inset-0 bg-black/30 z-50" onClick={closeMobile} />
         <div ref={panel} role="dialog" aria-modal="true" aria-label="주 메뉴" className="mobile-menu">
           <div data-layer="root" className="mobile-menu__root" inert={Boolean(selected)} aria-hidden={selected ? true : undefined}>
             <div className="mobile-menu__heading">
@@ -118,13 +118,12 @@ export default function Header() {
           }} className={`mobile-menu__detail ${selected ? 'is-open' : ''}`} inert={!selected} aria-hidden={!selected}>
             <div className="mobile-menu__heading">
               <button onClick={() => setSelected(null)} className="mobile-menu__back" aria-label="전체 메뉴로 돌아가기"><ArrowLeft size={20} />MENU</button>
-              <button onClick={closeMobile} aria-label="메뉴 닫기" className="mobile-menu__icon"><X size={24} /></button>
+              <button onClick={() => setSelected(null)} aria-label="하위 메뉴 닫고 이전 메뉴로" className="mobile-menu__icon"><X size={24} /></button>
             </div>
             <nav className="mobile-menu__links" aria-label={lastSelected ? `${lastSelected.title} 메뉴` : '하위 메뉴'}>
               <h2 className="text-xl font-bold mb-5">{lastSelected?.title}</h2>
               {lastSelected?.subItems.map(item => <MenuLink key={item.name} item={item} onClick={closeMobile} className="mobile-menu__link" />)}
             </nav>
-            <div className="mobile-menu__social"><SocialLinks /></div>
           </div>
         </div>
       </>}
