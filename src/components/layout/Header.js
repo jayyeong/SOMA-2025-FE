@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Youtube, Instagram, Menu, X, ArrowLeft } from 'lucide-react';
+import { Youtube, Instagram, Menu, X, ArrowLeft, ChevronRight } from 'lucide-react';
 import { navigation } from '../../data/navigation';
+import '../../styles/mobile-menu.css';
 
 function SocialLinks() {
   return <div className="flex gap-4">
@@ -20,12 +21,19 @@ export default function Header() {
   const [hovered, setHovered] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [lastSelected, setLastSelected] = useState(null);
   const menuButton = useRef(null);
   const panel = useRef(null);
   const { pathname } = useLocation();
   const closeMobile = () => { setMobileOpen(false); setSelected(null); };
 
   useEffect(() => { setHovered(null); setMobileOpen(false); setSelected(null); }, [pathname]);
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const closeOnDesktop = () => { if (desktop.matches) { setMobileOpen(false); setSelected(null); } };
+    desktop.addEventListener('change', closeOnDesktop);
+    return () => desktop.removeEventListener('change', closeOnDesktop);
+  }, []);
   useEffect(() => {
     if (!mobileOpen) return;
     const previous = document.body.style.overflow;
@@ -34,7 +42,7 @@ export default function Header() {
     const keydown = event => {
       if (event.key === 'Escape') { setMobileOpen(false); setSelected(null); }
       if (event.key === 'Tab') {
-        const items = panel.current?.querySelectorAll('button, a[href]');
+        const items = Array.from(panel.current?.querySelectorAll('button, a[href]') || []).filter(item => !item.closest('[inert]'));
         if (!items?.length) return;
         const first = items[0], last = items[items.length - 1];
         if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
@@ -49,7 +57,11 @@ export default function Header() {
     };
   }, [mobileOpen]);
   useEffect(() => {
-    if (mobileOpen) panel.current?.querySelector('button')?.focus();
+    if (!mobileOpen) return;
+    const frame = requestAnimationFrame(() => {
+      panel.current?.querySelector(selected ? '[data-layer="detail"] button' : '[data-layer="root"] button')?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
   }, [mobileOpen, selected]);
 
   return <div className="relative">
@@ -87,18 +99,33 @@ export default function Header() {
       </header>
       {mobileOpen && <>
         <div className="fixed inset-0 bg-black/30 z-50" onClick={closeMobile} />
-        <div ref={panel} role="dialog" aria-modal="true" aria-label="주 메뉴" className="fixed top-0 right-0 bottom-0 w-[288px] max-w-full bg-white z-50 flex flex-col">
-          <div className="flex items-center justify-between p-4 border-b">
-            {selected ? <button onClick={() => setSelected(null)} aria-label="이전 메뉴"><ArrowLeft size={24} /></button> : <span>SOMA</span>}
-            {selected && <h2 className="font-semibold">{selected.title}</h2>}
-            <button onClick={closeMobile} aria-label="메뉴 닫기"><X size={24} /></button>
+        <div ref={panel} role="dialog" aria-modal="true" aria-label="주 메뉴" className="mobile-menu">
+          <div data-layer="root" className="mobile-menu__root" inert={Boolean(selected)} aria-hidden={selected ? true : undefined}>
+            <div className="mobile-menu__heading">
+              <span className="text-xl font-bold">SOMA</span>
+              <button onClick={closeMobile} aria-label="메뉴 닫기" className="mobile-menu__icon"><X size={24} /></button>
+            </div>
+            <nav className="mobile-menu__links" aria-label="모바일 메뉴">
+              {navigation.map(item => <button key={item.title} className="mobile-menu__category" onClick={() => { setLastSelected(item); setSelected(item); }} aria-expanded={selected === item}>
+                {item.title}<ChevronRight size={20} aria-hidden="true" />
+              </button>)}
+            </nav>
+            <div className="mobile-menu__social"><SocialLinks /></div>
           </div>
-          <nav className="flex-1 overflow-y-auto px-6 py-8" aria-label="모바일 메뉴">
-            <ul className="space-y-6">{selected
-              ? selected.subItems.map(item => <li key={item.name}><MenuLink item={item} onClick={closeMobile} className="block py-2 text-base font-medium" /></li>)
-              : navigation.map(item => <li key={item.title}><button className="w-full py-2 text-left text-2xl font-semibold" onClick={() => setSelected(item)}>{item.title}</button></li>)}</ul>
-          </nav>
-          <div className="p-6"><SocialLinks /></div>
+          {selected && <button className="mobile-menu__previous" onClick={() => setSelected(null)} aria-label="이전 메뉴로 돌아가기" />}
+          <div data-layer="detail" onTransitionEnd={event => {
+            if (selected && event.target === event.currentTarget && event.propertyName === 'transform') event.currentTarget.querySelector('button')?.focus();
+          }} className={`mobile-menu__detail ${selected ? 'is-open' : ''}`} inert={!selected} aria-hidden={!selected}>
+            <div className="mobile-menu__heading">
+              <button onClick={() => setSelected(null)} className="mobile-menu__back" aria-label="전체 메뉴로 돌아가기"><ArrowLeft size={20} />MENU</button>
+              <button onClick={closeMobile} aria-label="메뉴 닫기" className="mobile-menu__icon"><X size={24} /></button>
+            </div>
+            <nav className="mobile-menu__links" aria-label={lastSelected ? `${lastSelected.title} 메뉴` : '하위 메뉴'}>
+              <h2 className="text-xl font-bold mb-5">{lastSelected?.title}</h2>
+              {lastSelected?.subItems.map(item => <MenuLink key={item.name} item={item} onClick={closeMobile} className="mobile-menu__link" />)}
+            </nav>
+            <div className="mobile-menu__social"><SocialLinks /></div>
+          </div>
         </div>
       </>}
     </div>
